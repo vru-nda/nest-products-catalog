@@ -11,7 +11,11 @@ export class ProductsService {
     private repo: Repository<Product>,
   ) {}
 
-  async findAll() {
+  async findAll(): Promise<{
+    success: boolean;
+    data: Product[];
+    message: string;
+  }> {
     const products = await this.repo.find();
     return {
       success: true,
@@ -32,15 +36,16 @@ export class ProductsService {
     };
   }
 
-  async delete(id: string) {
-    const product = await this.repo.findOne({ where: { id } });
-    if (!product) {
+  async delete(
+    id: string,
+  ): Promise<{ success: boolean; data: { id: string }; message: string }> {
+    const result = await this.repo.delete(id);
+    if (!result.affected) {
       throw new NotFoundException({
         success: false,
         message: `Product with id ${id} not found`,
       });
     }
-    await this.repo.remove(product);
     return {
       success: true,
       data: { id },

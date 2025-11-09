@@ -1,98 +1,166 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Backend — Product Management API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A RESTful API built with **NestJS**, **TypeORM**, and **PostgreSQL**, providing secure authentication, user management, and CRUD operations for products.
+Designed for scalability, type safety, and easy integration with a Next.js frontend.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Tech Stack
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+**Backend Framework:** NestJS (v11)
+**Database:** PostgreSQL
+**ORM:** TypeORM
+**Authentication:** JWT + Passport
+**Validation:** class-validator + class-transformer
+**Environment Management:** @nestjs/config
+**Hashing:** bcrypt
+**Language:** TypeScript
 
-## Project setup
+---
+
+## ⚙️ Setup & Installation
+
+### 1. Install Dependencies
 
 ```bash
-$ npm install
+npm install
 ```
 
-## Compile and run the project
+### 2. Setup Environment Variables
+
+Create a `.env` file in the root directory and add your configurations:
 
 ```bash
-# development
-$ npm run start
+# Application
+NODE_ENV=development
+BACKEND_PORT=3001
 
-# watch mode
-$ npm run start:dev
+# PostgreSQL
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=yourpassword
+POSTGRES_DB=products_db
 
-# production mode
-$ npm run start:prod
+# JWT
+JWT_SECRET=your_jwt_secret
 ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ npm run test
+## Scripts
 
-# e2e tests
-$ npm run test:e2e
+| Command                | Description                               |
+| ---------------------- | ----------------------------------------- |
+| `npm run start`        | Start the app in production mode          |
+| `npm run start:dev`    | Start the app in watch mode (development) |
+| `npm run build`        | Build the app for production              |
+| `npm run format`       | Format all files using Prettier           |
+| `npm run lint`         | Lint and fix issues                       |
+| `npm run test`         | Run all Jest tests                        |
+| `npm run create:admin` | Create an admin user (via script)         |
 
-# test coverage
-$ npm run test:cov
+---
+
+## **API Endpoints**
+
+### **Auth**
+
+| Method | Endpoint             | Description                               |
+| ------ | -------------------- | ----------------------------------------- |
+| `POST` | `/api/v1/auth/login` | Authenticate user and receive a JWT token |
+
+---
+
+### **Users**
+
+> These routes are **not publicly exposed** — user creation and lookup are handled internally by the authentication module.
+
+| Method     | Endpoint                     | Description                                                      |
+| ---------- | ---------------------------- | ---------------------------------------------------------------- |
+| _Internal_ | `UsersService.create()`      | Create a new user (used internally during registration or setup) |
+| _Internal_ | `UsersService.findByEmail()` | Find user by email (used during login validation)                |
+
+---
+
+### **Products**
+
+| Method   | Endpoint               | Description          | Auth Required |
+| -------- | ---------------------- | -------------------- | ------------- |
+| `GET`    | `/api/v1/products`     | Fetch all products   | ❌ No         |
+| `POST`   | `/api/v1/products`     | Create a new product | ✅ Yes        |
+| `DELETE` | `/api/v1/products/:id` | Delete a product     | ✅ Yes        |
+
+---
+
+## Validation Rules
+
+**Product DTOs**
+
+- `name` — must be a non-empty string
+- `price` — must be a positive number
+- `description` — optional string
+
+**User DTOs**
+
+- `email` — must be valid
+- `password` — must be at least 8 characters
+
+---
+
+## Response Format
+
+Every API response follows a consistent structure:
+
+```json
+{
+  "success": true,
+  "data": { "id": "123", "name": "Sample Product" },
+  "message": "Product created successfully"
+}
 ```
 
-## Deployment
+On errors:
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+```json
+{
+  "success": false,
+  "message": "Product not found"
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Resources
+## Development Notes
 
-Check out a few resources that may come in handy when working with NestJS:
+- All routes are prefixed with `/api/v1`
+- DTO validation is globally enabled
+- CORS is enabled for frontend integration
+- Use `Logger` instead of `console.log` for production logs
+- Database auto-sync is **disabled** in production
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+---
 
-## Support
+## Deployment Notes
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+1. Build the project:
 
-## Stay in touch
+   ```bash
+   npm run build
+   ```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+2. Start the compiled app:
 
-## License
+   ```bash
+   npm run start:prod
+   ```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+3. Ensure environment variables are correctly configured on your server.
+
+---
+
+## Author
+
+**Vrunda Joshi**
+Full Stack Developer (NestJS / Next.js)
+[LinkedIn](https://linkedin.com/in/vrundajoshi) • [GitHub](https://github.com/vrundajoshi)
